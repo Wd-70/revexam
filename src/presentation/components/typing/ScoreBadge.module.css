@@ -1,0 +1,32 @@
+.badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.unit {
+  font-size: var(--fs-1);
+  color: var(--text-mute);
+}
+
+@media (max-width: 480px) {
+  .badge {
+    padding: var(--sp-1) var(--sp-3);
+  }
+  .value {
+    font-size: var(--fs-4);
+  }
+}

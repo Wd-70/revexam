@@ -1,0 +1,70 @@
+:root {
+  --bg: #FAFAF7;
+  --surface: #FFFFFF;
+  --surface-2: #F2EFE7;
+  --text: #1A1D24;
+  --text-mute: #5C6068;
+  --primary: #B58A3C;
+  --accent: #5B7B9A;
+  --success: #4A8C5A;
+  --warn: #C28A2C;
+  --danger: #B0463A;
+  --border: #E2DED3;
+
+  --font-serif: 'Noto Serif KR', 'Nanum Myeongjo', serif;
+  --font-sans: 'Pretendard Variable', 'Pretendard', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+
+  --fs-1: 0.875rem;
+  --fs-2: 1rem;
+  --fs-3: 1.25rem;
+  --fs-4: 1.5rem;
+  --fs-5: 2rem;
+  --fs-6: 2.75rem;
+  --fs-7: 4rem;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 0 1px rgba(181, 138, 60, 0.3), 0 8px 24px rgba(181, 138, 60, 0.15);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 400ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F1115;
+    --surface: #1A1D24;
+    --surface-2: #242830;
+    --text: #E8E6E3;
+    --text-mute: #9AA0A8;
+    --primary: #C9A86A;
+    --accent: #7A9CBA;
+    --border: #2A2E36;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 0 1px rgba(201, 168, 106, 0.4), 0 8px 24px rgba(201, 168, 106, 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

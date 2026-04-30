@@ -1,0 +1,75 @@
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-8);
+  padding-left: max(var(--sp-8), env(safe-area-inset-left));
+  padding-right: max(var(--sp-8), env(safe-area-inset-right));
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 480px) {
+  .topBar {
+    padding: var(--sp-3) var(--sp-4);
+    padding-left: max(var(--sp-4), env(safe-area-inset-left));
+    padding-right: max(var(--sp-4), env(safe-area-inset-right));
+  }
+  .nav {
+    gap: var(--sp-2);
+  }
+  .navLink {
+    padding: var(--sp-1) var(--sp-2);
+  }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: var(--fs-3);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--surface);
+  font-family: var(--font-serif);
+  font-weight: 700;
+}
+
+.brandWord {
+  font-weight: 600;
+}
+
+.nav {
+  display: flex;
+  gap: var(--sp-4);
+}
+
+.navLink {
+  color: var(--text-mute);
+  font-size: var(--fs-1);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+
+.navLink:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}

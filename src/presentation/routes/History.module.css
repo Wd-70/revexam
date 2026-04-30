@@ -1,0 +1,174 @@
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-6) var(--sp-16);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+}
+
+.back {
+  font-size: var(--fs-1);
+  color: var(--text-mute);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+
+.back:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-4);
+  font-weight: 600;
+}
+
+/* ── History list ── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 10%, transparent);
+  transform: translateY(-1px);
+}
+
+.card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.chapterBadge {
+  font-family: var(--font-serif);
+  font-size: var(--fs-3);
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 3ch;
+  text-align: center;
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTop {
+  font-size: var(--fs-2);
+  font-weight: 500;
+}
+
+.cardBottom {
+  font-size: var(--fs-0);
+  color: var(--text-mute);
+  margin-top: var(--sp-1);
+}
+
+.accuracy {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-2);
+  min-width: 4ch;
+  text-align: right;
+}
+
+.accHigh {
+  color: var(--success);
+}
+
+.accMid {
+  color: var(--warn);
+}
+
+.accLow {
+  color: var(--danger);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  text-align: center;
+  padding: var(--sp-16) var(--sp-4);
+  color: var(--text-mute);
+}
+
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  color: color-mix(in srgb, var(--primary) 60%, var(--text-mute));
+  opacity: 0.7;
+  margin-bottom: var(--sp-2);
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: var(--fs-3);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.emptyLink {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.emptyLink:hover {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: var(--sp-4) var(--sp-4) var(--sp-12);
+    padding-left: max(var(--sp-4), env(safe-area-inset-left));
+    padding-right: max(var(--sp-4), env(safe-area-inset-right));
+  }
+  .header {
+    margin-bottom: var(--sp-4);
+    gap: var(--sp-2);
+  }
+  .title {
+    font-size: var(--fs-3);
+  }
+  .back {
+    padding: var(--sp-1) var(--sp-2);
+  }
+  .card {
+    padding: var(--sp-3) var(--sp-4);
+    gap: var(--sp-3);
+  }
+  .chapterBadge {
+    font-size: var(--fs-2);
+  }
+  .cardTop {
+    font-size: var(--fs-1);
+  }
+  .accuracy {
+    font-size: var(--fs-1);
+  }
+}

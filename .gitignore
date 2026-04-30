@@ -1,0 +1,24 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# vite-plugin-pwa generated
+dev-dist
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Claude Code session artifacts
+.claude/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
