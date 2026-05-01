@@ -62,6 +62,8 @@ describe('grade — target perspective (targetChars)', () => {
     const r = grade('가 나', '가\n나');
     expect(r.accuracy).toBe(100);
     expect(r.typedChars.every((c) => c.status === 'correct')).toBe(true);
+    // Original newline preserved in c.ch for display
+    expect(r.typedChars[1]!.ch).toBe('\n');
   });
 
   it('treats newline as space in multi-verse grading', () => {

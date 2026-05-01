@@ -48,15 +48,16 @@ function statusOf(matched: number, total: number): GradedStatus {
 
 export function grade(target: string, typed: string): GradeResult {
   const targetChars = [...target.normalize('NFC')];
-  // Normalize newlines to spaces so that Enter between verses matches the
-  // space separator used when joining verse texts.
-  const typedChars = [...typed.replace(/\r?\n/g, ' ').normalize('NFC')];
+  // Keep original chars for display (c.ch), but normalize newlines to spaces
+  // for alignment matching so Enter between verses is accepted as a space.
+  const typedRaw = [...typed.normalize('NFC')];
+  const typedChars = typedRaw.map(ch => /\r?\n/.test(ch) ? ' ' : ch);
 
   if (targetChars.length === 0) {
     return { targetChars: [], typedChars: [], accuracy: 0 };
   }
 
-  if (typedChars.length === 0) {
+  if (typedRaw.length === 0) {
     const tc = targetChars.map((ch) => {
       const j = decomposeChar(ch);
       return { ch, status: 'pending' as const, matchedJamo: 0, totalJamo: j.length, skippedBefore: 0 };
@@ -133,17 +134,18 @@ export function grade(target: string, typed: string): GradeResult {
 
       const tCh = targetChars[p.targetIndex]!;
       const uCh = typedChars[p.typedIndex]!;
+      const uChRaw = typedRaw[p.typedIndex]!;
 
       if (p.exact) {
         const jLen = decomposeChar(tCh).length;
         typedResult.push({
-          ch: uCh, status: 'correct',
+          ch: uChRaw, status: 'correct',
           matchedJamo: jLen, totalJamo: jLen, skippedBefore: skipped,
         });
       } else {
         const cmp = compareCharJamo(tCh, uCh);
         typedResult.push({
-          ch: uCh, status: statusOf(cmp.typedMatched, cmp.typedTotal),
+          ch: uChRaw, status: statusOf(cmp.typedMatched, cmp.typedTotal),
           matchedJamo: cmp.typedMatched, totalJamo: cmp.typedTotal, skippedBefore: skipped,
         });
       }
@@ -152,9 +154,10 @@ export function grade(target: string, typed: string): GradeResult {
     } else {
       // Extra typed char (beyond target)
       const uCh = typedChars[p.typedIndex]!;
+      const uChRaw = typedRaw[p.typedIndex]!;
       const uJamo = decomposeChar(uCh);
       typedResult.push({
-        ch: uCh, status: 'wrong',
+        ch: uChRaw, status: 'wrong',
         matchedJamo: 0, totalJamo: uJamo.length, skippedBefore: 0,
       });
     }
