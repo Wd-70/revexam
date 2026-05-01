@@ -83,16 +83,25 @@ describe('greedyAlign', () => {
     expect(r.targetConsumed).toBe(4);
   });
 
-  it('does not look ahead beyond MAX_SKIP', () => {
-    // target: A x x x x x x B, typed: A B
-    // After matching A at 0, tIdx=1. Look-ahead checks indices 2..6 (5 positions).
-    // B is at index 7 — beyond the look-ahead window.
-    const target = ['A', 'x', 'x', 'x', 'x', 'x', 'x', 'B'];
+  it('does not look ahead beyond MAX_SKIP_TARGET (15)', () => {
+    // target: A + 16 x's + B, typed: A B
+    // After matching A at 0, tIdx=1. Look-ahead checks indices 2..16 (15 positions).
+    // B is at index 17 — beyond the look-ahead window.
+    const target = ['A', ...Array(16).fill('x'), 'B'];
     const r = greedyAlign(target, ['A', 'B']);
     expect(r.pairs[0]).toEqual({ targetIndex: 0, typedIndex: 0, exact: true });
     // B was not found within skip range, so it pairs with target[1]='x' as inexact
     expect(r.pairs[1]!.exact).toBe(false);
     expect(r.pairs[1]!.targetIndex).toBe(1);
+  });
+
+  it('finds target match within MAX_SKIP_TARGET=15 range', () => {
+    // target: A + 14 x's + B, typed: A B → B is at index 15, within range
+    const target = ['A', ...Array(14).fill('x'), 'B'];
+    const r = greedyAlign(target, ['A', 'B']);
+    expect(r.pairs[0]).toEqual({ targetIndex: 0, typedIndex: 0, exact: true });
+    expect(r.pairs[1]!.exact).toBe(true);
+    expect(r.pairs[1]!.targetIndex).toBe(15);
   });
 
   it('treats extra space as insertion, not substitution', () => {

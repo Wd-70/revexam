@@ -26,8 +26,11 @@ export interface GreedyAlignResult {
 
 /**
  * Maximum number of target chars to look ahead when the user skips target text.
+ * Set high enough to bridge phrase-level omissions in Bible memorization
+ * (e.g. skipping "반드시 속히 될 일을 " = 12 chars).
+ * Korean syllables are diverse (~11k possible), so false exact-matches are rare.
  */
-const MAX_SKIP_TARGET = 5;
+const MAX_SKIP_TARGET = 15;
 
 /**
  * Maximum number of typed chars to look ahead for insertion detection.

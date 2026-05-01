@@ -48,7 +48,9 @@ function statusOf(matched: number, total: number): GradedStatus {
 
 export function grade(target: string, typed: string): GradeResult {
   const targetChars = [...target.normalize('NFC')];
-  const typedChars = [...typed.normalize('NFC')];
+  // Normalize newlines to spaces so that Enter between verses matches the
+  // space separator used when joining verse texts.
+  const typedChars = [...typed.replace(/\r?\n/g, ' ').normalize('NFC')];
 
   if (targetChars.length === 0) {
     return { targetChars: [], typedChars: [], accuracy: 0 };
