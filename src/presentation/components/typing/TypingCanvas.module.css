@@ -9,7 +9,7 @@
   z-index: 1;
   pointer-events: auto;
   cursor: text;
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: var(--fs-3);
   line-height: 2;
   padding: var(--sp-4);
@@ -34,11 +34,11 @@
   width: 100%;
   height: 100%;
   padding: var(--sp-4);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: var(--fs-3);
   line-height: 2;
   resize: none;
-  border: none;
+  border: 1px solid transparent;
   outline: none;
   background: transparent;
   color: transparent;

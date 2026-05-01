@@ -1,5 +1,5 @@
 import { decomposeChar } from './HangulDecomposer';
-import { alignLcs } from './LcsAligner';
+import { greedyAlign } from './GreedyAligner';
 
 export type GradedStatus = 'correct' | 'partial' | 'wrong' | 'pending';
 
@@ -62,80 +62,103 @@ export function grade(target: string, typed: string): GradeResult {
     return { targetChars: tc, typedChars: [], accuracy: 0 };
   }
 
-  // ── 1. Character-level LCS for structural alignment ──
-  const { matches: anchors } = alignLcs(targetChars, typedChars);
+  // ── 1. Greedy forward alignment ──
+  const { pairs, targetConsumed } = greedyAlign(targetChars, typedChars);
 
-  const targetResult: GradedChar[] = [];
-  const typedResult: GradedChar[] = [];
-  let totalMatchedJamo = 0;
-
-  let prevTargetEnd = 0;
-  let prevTypedEnd = 0;
-  let skippedAccum = 0;
-
-  // ── 2. Walk anchors; process gaps between them ──
-  for (let a = 0; a <= anchors.length; a++) {
-    const isLastSegment = a === anchors.length;
-    const anchorTargetIdx = isLastSegment ? targetChars.length : anchors[a]!.targetIndex;
-    const anchorTypedIdx = isLastSegment ? typedChars.length : anchors[a]!.typedIndex;
-
-    // Gap chars between previous anchor and this one
-    const gapTargetLen = anchorTargetIdx - prevTargetEnd;
-    const gapTypedLen = anchorTypedIdx - prevTypedEnd;
-    const pairedLen = Math.min(gapTargetLen, gapTypedLen);
-
-    // Positional pairs — compare jamo at same positions
-    for (let k = 0; k < pairedLen; k++) {
-      const tCh = targetChars[prevTargetEnd + k]!;
-      const uCh = typedChars[prevTypedEnd + k]!;
-      const cmp = compareCharJamo(tCh, uCh);
-      targetResult.push({
-        ch: tCh, status: statusOf(cmp.targetMatched, cmp.targetTotal),
-        matchedJamo: cmp.targetMatched, totalJamo: cmp.targetTotal, skippedBefore: 0,
-      });
-      typedResult.push({
-        ch: uCh, status: statusOf(cmp.typedMatched, cmp.typedTotal),
-        matchedJamo: cmp.typedMatched, totalJamo: cmp.typedTotal,
-        skippedBefore: k === 0 ? skippedAccum : 0,
-      });
-      if (k === 0) skippedAccum = 0;
-      totalMatchedJamo += cmp.targetMatched;
-    }
-
-    // Unpaired target chars (more target than typed in gap)
-    for (let k = pairedLen; k < gapTargetLen; k++) {
-      const tCh = targetChars[prevTargetEnd + k]!;
-      const j = decomposeChar(tCh);
-      const status: GradedStatus = isLastSegment ? 'pending' : 'wrong';
-      targetResult.push({ ch: tCh, status, matchedJamo: 0, totalJamo: j.length, skippedBefore: 0 });
-      if (!isLastSegment) skippedAccum++;
-    }
-
-    // Extra typed chars (more typed than target in gap)
-    for (let k = pairedLen; k < gapTypedLen; k++) {
-      const uCh = typedChars[prevTypedEnd + k]!;
-      const j = decomposeChar(uCh);
-      typedResult.push({
-        ch: uCh, status: 'wrong', matchedJamo: 0, totalJamo: j.length,
-        skippedBefore: k === pairedLen ? skippedAccum : 0,
-      });
-      if (k === pairedLen) skippedAccum = 0;
-    }
-
-    // The anchor itself (exact character match → all jamo correct)
-    if (!isLastSegment) {
-      const tCh = targetChars[anchorTargetIdx]!;
-      const uCh = typedChars[anchorTypedIdx]!;
-      const jLen = decomposeChar(tCh).length;
-      targetResult.push({ ch: tCh, status: 'correct', matchedJamo: jLen, totalJamo: jLen, skippedBefore: 0 });
-      typedResult.push({ ch: uCh, status: 'correct', matchedJamo: jLen, totalJamo: jLen, skippedBefore: skippedAccum });
-      skippedAccum = 0;
-      totalMatchedJamo += jLen;
-      prevTargetEnd = anchorTargetIdx + 1;
-      prevTypedEnd = anchorTypedIdx + 1;
+  // Build a map: targetIndex → pair (for covered target chars)
+  const targetCovered = new Map<number, { typedIndex: number; exact: boolean }>();
+  for (const p of pairs) {
+    if (p.targetIndex >= 0) {
+      targetCovered.set(p.targetIndex, { typedIndex: p.typedIndex, exact: p.exact });
     }
   }
 
+  // ── 2. Build target-perspective result ──
+  const targetResult: GradedChar[] = [];
+  let totalMatchedJamo = 0;
+
+  for (let tIdx = 0; tIdx < targetChars.length; tIdx++) {
+    const tCh = targetChars[tIdx]!;
+    const tJamo = decomposeChar(tCh);
+    const covered = targetCovered.get(tIdx);
+
+    if (covered) {
+      if (covered.exact) {
+        // Exact character match → all jamo correct
+        targetResult.push({
+          ch: tCh, status: 'correct',
+          matchedJamo: tJamo.length, totalJamo: tJamo.length, skippedBefore: 0,
+        });
+        totalMatchedJamo += tJamo.length;
+      } else {
+        // Inexact → jamo comparison
+        const uCh = typedChars[covered.typedIndex]!;
+        const cmp = compareCharJamo(tCh, uCh);
+        targetResult.push({
+          ch: tCh, status: statusOf(cmp.targetMatched, cmp.targetTotal),
+          matchedJamo: cmp.targetMatched, totalJamo: cmp.targetTotal, skippedBefore: 0,
+        });
+        totalMatchedJamo += cmp.targetMatched;
+      }
+    } else if (tIdx >= targetConsumed) {
+      // Beyond what was consumed → pending
+      targetResult.push({
+        ch: tCh, status: 'pending',
+        matchedJamo: 0, totalJamo: tJamo.length, skippedBefore: 0,
+      });
+    } else {
+      // Within consumed range but not covered → skipped (wrong)
+      targetResult.push({
+        ch: tCh, status: 'wrong',
+        matchedJamo: 0, totalJamo: tJamo.length, skippedBefore: 0,
+      });
+    }
+  }
+
+  // ── 3. Build typed-perspective result ──
+  const typedResult: GradedChar[] = [];
+
+  // Pre-compute skippedBefore for each typed char:
+  // Count target chars that were skipped (uncovered) between the previous
+  // pair's target position and this pair's target position.
+  let prevTargetEnd = 0; // next expected target index
+  for (const p of pairs) {
+    if (p.targetIndex >= 0) {
+      let skipped = 0;
+      for (let t = prevTargetEnd; t < p.targetIndex; t++) {
+        if (!targetCovered.has(t)) skipped++;
+      }
+
+      const tCh = targetChars[p.targetIndex]!;
+      const uCh = typedChars[p.typedIndex]!;
+
+      if (p.exact) {
+        const jLen = decomposeChar(tCh).length;
+        typedResult.push({
+          ch: uCh, status: 'correct',
+          matchedJamo: jLen, totalJamo: jLen, skippedBefore: skipped,
+        });
+      } else {
+        const cmp = compareCharJamo(tCh, uCh);
+        typedResult.push({
+          ch: uCh, status: statusOf(cmp.typedMatched, cmp.typedTotal),
+          matchedJamo: cmp.typedMatched, totalJamo: cmp.typedTotal, skippedBefore: skipped,
+        });
+      }
+
+      prevTargetEnd = p.targetIndex + 1;
+    } else {
+      // Extra typed char (beyond target)
+      const uCh = typedChars[p.typedIndex]!;
+      const uJamo = decomposeChar(uCh);
+      typedResult.push({
+        ch: uCh, status: 'wrong',
+        matchedJamo: 0, totalJamo: uJamo.length, skippedBefore: 0,
+      });
+    }
+  }
+
+  // ── 4. Accuracy ──
   const totalTargetJamo = targetChars.reduce(
     (sum, ch) => sum + decomposeChar(ch).length, 0
   );
